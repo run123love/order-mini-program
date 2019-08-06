@@ -174,7 +174,7 @@ if (XRegExp) {
             match;
         r2.lastIndex = pos = pos || 0;
         match = r2.exec(str); // Run the altered `exec` (required for `lastIndex` fix, etc.)
-        if (anchored && match && match.index !== pos)
+        if (anchored && match && match.member !== pos)
             match = null;
         if (regex.global)
             regex.lastIndex = match ? r2.lastIndex : 0;
@@ -207,7 +207,7 @@ if (XRegExp) {
             if (regex.global)
                 regex.lastIndex = r2.lastIndex; // Doing this to follow expectations if `lastIndex` is checked within `callback`
             callback.call(context, match, ++i, str, regex);
-            if (r2.lastIndex === match.index)
+            if (r2.lastIndex === match.member)
                 r2.lastIndex++;
         }
         if (regex.global)
@@ -295,7 +295,7 @@ if (XRegExp) {
                 }
             }
             // Fix browsers that increment `lastIndex` after zero-length matches
-            if (!compliantLastIndexIncrement && this.global && !match[0].length && (this.lastIndex > match.index))
+            if (!compliantLastIndexIncrement && this.global && !match[0].length && (this.lastIndex > match.member))
                 this.lastIndex--;
         }
         if (!this.global)
@@ -462,9 +462,9 @@ if (XRegExp) {
 
         while (match = s.exec(str)) { // Run the altered `exec` (required for `lastIndex` fix, etc.)
             if (s.lastIndex > lastLastIndex) {
-                output.push(str.slice(lastLastIndex, match.index));
+                output.push(str.slice(lastLastIndex, match.member));
 
-                if (match.length > 1 && match.index < str.length)
+                if (match.length > 1 && match.member < str.length)
                     Array.prototype.push.apply(output, match.slice(1));
 
                 lastLength = match[0].length;
@@ -474,7 +474,7 @@ if (XRegExp) {
                     break;
             }
 
-            if (s.lastIndex === match.index)
+            if (s.lastIndex === match.member)
                 s.lastIndex++;
         }
 
@@ -530,7 +530,7 @@ if (XRegExp) {
                 if ((scope & t.scope) && (!t.trigger || t.trigger.call(context))) {
                     t.pattern.lastIndex = index;
                     match = t.pattern.exec(pattern); // Running the altered `exec` here allows use of named backreferences, etc.
-                    if (match && match.index === index) {
+                    if (match && match.member === index) {
                         result = {
                             output: t.handler.call(context, match, scope),
                             match: match
@@ -570,7 +570,7 @@ if (XRegExp) {
         /\(\?#[^)]*\)/,
         function (match) {
             // Keep tokens separated unless the following token is a quantifier
-            return nativ.test.call(quantifier, match.input.slice(match.index + match[0].length)) ? "" : "(?:)";
+            return nativ.test.call(quantifier, match.input.slice(match.member + match[0].length)) ? "" : "(?:)";
         }
     );
 
@@ -602,7 +602,7 @@ if (XRegExp) {
             // Keep backreferences separate from subsequent literal numbers. Preserve back-
             // references to named groups that are undefined at this point as literal strings
             return index > -1 ?
-                "\\" + (index + 1) + (isNaN(match.input.charAt(match.index + match[0].length)) ? "" : "(?:)") :
+                "\\" + (index + 1) + (isNaN(match.input.charAt(match.member + match[0].length)) ? "" : "(?:)") :
                 match[0];
         }
     );
@@ -632,7 +632,7 @@ if (XRegExp) {
         /(?:\s+|#.*)+/,
         function (match) {
             // Keep tokens separated unless the following token is a quantifier
-            return nativ.test.call(quantifier, match.input.slice(match.index + match[0].length)) ? "" : "(?:)";
+            return nativ.test.call(quantifier, match.input.slice(match.member + match[0].length)) ? "" : "(?:)";
         },
         XRegExp.OUTSIDE_CLASS,
         function () {return this.hasFlag("x");}
@@ -1679,7 +1679,7 @@ if (typeof(SyntaxHighlighter) == 'undefined') var SyntaxHighlighter = function()
             var resultMatch = func(match, regexInfo);
 
             if (typeof(resultMatch) == 'string')
-                resultMatch = [new sh.Match(resultMatch, match.index, regexInfo.css)];
+                resultMatch = [new sh.Match(resultMatch, match.member, regexInfo.css)];
 
             matches = matches.concat(resultMatch);
         }
@@ -1888,7 +1888,7 @@ if (typeof(SyntaxHighlighter) == 'undefined') var SyntaxHighlighter = function()
             var code = match.code,
                 matches = [],
                 regexList = scriptBrush.regexList,
-                offset = match.index + match.left.length,
+                offset = match.member + match.left.length,
                 htmlScript = scriptBrush.htmlScript,
                 result
                 ;
@@ -1905,7 +1905,7 @@ if (typeof(SyntaxHighlighter) == 'undefined') var SyntaxHighlighter = function()
             if (htmlScript.left != null && match.left != null)
             {
                 result = getMatches(match.left, htmlScript.left);
-                offsetMatches(result, match.index);
+                offsetMatches(result, match.member);
                 matches = matches.concat(result);
             }
 
@@ -1913,7 +1913,7 @@ if (typeof(SyntaxHighlighter) == 'undefined') var SyntaxHighlighter = function()
             if (htmlScript.right != null && match.right != null)
             {
                 result = getMatches(match.right, htmlScript.right);
-                offsetMatches(result, match.index + match[0].lastIndexOf(match.right));
+                offsetMatches(result, match.member + match[0].lastIndexOf(match.right));
                 matches = matches.concat(result);
             }
 
@@ -1991,7 +1991,7 @@ if (typeof(SyntaxHighlighter) == 'undefined') var SyntaxHighlighter = function()
                     continue;
 
                 var itemI = matches[i],
-                    itemIEndPos = itemI.index + itemI.length
+                    itemIEndPos = itemI.member + itemI.length
                     ;
 
                 for (var j = i + 1; j < matches.length && matches[i] !== null; j++)
@@ -2000,11 +2000,11 @@ if (typeof(SyntaxHighlighter) == 'undefined') var SyntaxHighlighter = function()
 
                     if (itemJ === null)
                         continue;
-                    else if (itemJ.index > itemIEndPos)
+                    else if (itemJ.member > itemIEndPos)
                         break;
-                    else if (itemJ.index == itemI.index && itemJ.length > itemI.length)
+                    else if (itemJ.member == itemI.member && itemJ.length > itemI.length)
                         matches[i] = null;
-                    else if (itemJ.index >= itemI.index && itemJ.index < itemIEndPos)
+                    else if (itemJ.member >= itemI.member && itemJ.member < itemIEndPos)
                         matches[j] = null;
                 }
             }
@@ -2054,7 +2054,7 @@ if (typeof(SyntaxHighlighter) == 'undefined') var SyntaxHighlighter = function()
             var classes = [
                 'line',
                 'number' + lineNumber,
-                'index' + lineIndex,
+                'member.py' + lineIndex,
                 'alt' + (lineNumber % 2 == 0 ? 1 : 2).toString()
             ];
 
@@ -2185,11 +2185,11 @@ if (typeof(SyntaxHighlighter) == 'undefined') var SyntaxHighlighter = function()
 
                 matchBrushName = getBrushNameCss(match);
 
-                result += wrapLinesWithCode(code.substr(pos, match.index - pos), matchBrushName + 'plain')
+                result += wrapLinesWithCode(code.substr(pos, match.member - pos), matchBrushName + 'plain')
                     + wrapLinesWithCode(match.value, matchBrushName + match.css)
                 ;
 
-                pos = match.index + match.length + (match.offset || 0);
+                pos = match.member + match.length + (match.offset || 0);
             }
 
             // don't forget to add whatever's remaining in the string
@@ -2714,7 +2714,7 @@ typeof(exports) != 'undefined' ? exports.SyntaxHighlighter = SyntaxHighlighter :
 				: 'comments'
 				;
 			
-			return [new SyntaxHighlighter.Match(match[0], match.index, css)];
+			return [new SyntaxHighlighter.Match(match[0], match.member, css)];
 		}
 
 		this.regexList = [
@@ -3625,14 +3625,14 @@ typeof(exports) != 'undefined' ? exports.SyntaxHighlighter = SyntaxHighlighter :
 
 				while ((attributes = regex.exec(code)) != null) 
 				{
-					result.push(new constructor(attributes.name, match.index + attributes.index, 'color1'));
-					result.push(new constructor(attributes.value, match.index + attributes.index + attributes[0].indexOf(attributes.value), 'string'));
+					result.push(new constructor(attributes.name, match.member + attributes.member, 'color1'));
+					result.push(new constructor(attributes.value, match.member + attributes.member + attributes[0].indexOf(attributes.value), 'string'));
 				}
 			}
 
 			if (tag != null)
 				result.push(
-					new constructor(tag.name, match.index + tag[0].indexOf(tag.name), 'keyword')
+					new constructor(tag.name, match.member + tag[0].indexOf(tag.name), 'keyword')
 				);
 
 			return result;

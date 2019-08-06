@@ -6811,7 +6811,7 @@ Axis.prototype = {
 	update: function (newOptions, redraw) {
 		var chart = this.chart;
 
-		newOptions = chart.options[this.xOrY + 'Axis'][this.options.index] = merge(this.userOptions, newOptions);
+		newOptions = chart.options[this.xOrY + 'Axis'][this.options.member] = merge(this.userOptions, newOptions);
 
 		this.destroy(true);
 		this._addedPlotLB = this.userMin = this.userMax = UNDEFINED; // #1611, #2306
@@ -6839,7 +6839,7 @@ Axis.prototype = {
 		// Remove the axis
 		erase(chart.axes, this);
 		erase(chart[key], this);
-		chart.options[key].splice(this.options.index, 1);
+		chart.options[key].splice(this.options.member, 1);
 		each(chart[key], function (axis, i) { // Re-index, #1706
 			axis.options.index = i;
 		});
@@ -11860,7 +11860,7 @@ Chart.prototype = {
 			var linkedTo = series.options.linkedTo;
 			if (isString(linkedTo)) {
 				if (linkedTo === ':previous') {
-					linkedTo = chart.series[series.index - 1];
+					linkedTo = chart.series[series.member - 1];
 				} else {
 					linkedTo = chart.get(linkedTo);
 				}
@@ -12779,7 +12779,7 @@ Series.prototype = {
 		
 		// Sort series according to index option (#248, #1123)
 		stableSort(chartSeries, function (a, b) {
-			return pick(a.options.index, a._i) - pick(b.options.index, a._i);
+			return pick(a.options.member, a._i) - pick(b.options.member, a._i);
 		});
 		each(chartSeries, function (series, i) {
 			series.index = i;
@@ -12808,9 +12808,9 @@ Series.prototype = {
 					
 					// apply if the series xAxis or yAxis option mathches the number of the 
 					// axis, or if undefined, use the first axis
-					if ((seriesOptions[AXIS] === axisOptions.index) ||
+					if ((seriesOptions[AXIS] === axisOptions.member) ||
 							(seriesOptions[AXIS] !== UNDEFINED && seriesOptions[AXIS] === axisOptions.id) ||
-							(seriesOptions[AXIS] === UNDEFINED && axisOptions.index === 0)) {
+							(seriesOptions[AXIS] === UNDEFINED && axisOptions.member === 0)) {
 						
 						// register this series in the axis.series lookup
 						axis.series.push(series);
@@ -13520,7 +13520,7 @@ Series.prototype = {
 
 			// If the StackItem doesn't exist, create it first
 			stack = stacks[key][x];
-			stack.points[series.index] = [stack.cum || 0];
+			stack.points[series.member] = [stack.cum || 0];
 
 			// Add value to the stack total
 			if (stacking === 'percent') {
@@ -13541,7 +13541,7 @@ Series.prototype = {
 
 			stack.cum = (stack.cum || 0) + (y || 0);
 
-			stack.points[series.index].push(stack.cum);
+			stack.points[series.member].push(stack.cum);
 			stackedYData[i] = stack.cum;
 
 		}
@@ -13574,7 +13574,7 @@ Series.prototype = {
 			while (i--) {
 				x = series.xData[i];
 				stack = stacks[key] && stacks[key][x];
-				pointExtremes = stack && stack.points[series.index];
+				pointExtremes = stack && stack.points[series.member];
 				if (pointExtremes) {
 					totalFactor = stack.total ? 100 / stack.total : 0;
 					pointExtremes[0] = correctFloat(pointExtremes[0] * totalFactor); // Y bottom value
@@ -13684,7 +13684,7 @@ Series.prototype = {
 			if (stacking && series.visible && stack && stack[xValue]) {
 
 				pointStack = stack[xValue];
-				stackValues = pointStack.points[series.index];
+				stackValues = pointStack.points[series.member];
 				yBottom = stackValues[0];
 				yValue = stackValues[1];
 
