@@ -16,20 +16,34 @@ class Application(Flask):
 
     :param import_name: the name of the application package
     """
-    def __init__(self, import_name: str):
-        super().__init__(import_name)
+    def __init__(self, import_name: str,
+                 temp_folder: str = None,
+                 root_path=None,
+                 static_folder=None):
+        super().__init__(import_name,
+                         template_folder=temp_folder,
+                         root_path=root_path,
+                         static_folder=static_folder)
         self.__config_when_env()
         db.init_app(self)
 
     def __config_when_env(self):
         """通过环境变量加载app配置"""
-        logger.info("开始配置app......")
+        logger.debug("开始配置app......")
         name_of_config_env = os.environ.get("ops_config", "base")
         self.config.from_pyfile(f"config/{name_of_config_env}_setting.py")
-        logger.info("app配置成功，当前采用的配置为：{}", name_of_config_env)
+        logger.debug("app配置成功，当前采用的配置为：{}", name_of_config_env)
 
 
 db = SQLAlchemy()
-app = Application(__name__)
+app = Application(__name__,
+                  temp_folder=os.getcwd() + "/web/templates",
+                  root_path=os.getcwd())
 manager = Manager(app)
+
+# 注入模板方法
+from common.libs.UrlManager import UrlManager
+app.add_template_global(UrlManager.buildUrl, "buildUrl")
+app.add_template_global(UrlManager.buildStaticUrl, "buildStaticUrl")
+
 
